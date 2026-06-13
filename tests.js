@@ -25,6 +25,18 @@ function testSubtraction() {
   assertEqual(subtract(5, 3), 2);
 }
 
+function testMultiplication() {
+  assertEqual(multiply(4, 3), 12);
+}
+
+function testDivision() {
+  assertEqual(divide(10, 2), 5);
+}
+
+function testSequenceWithAllOperations() {
+  assertEqual(calculateSequence("10 + 5 - 3 * 2 / 4"), 6);
+}
+
 try {
   testAddition();
   showResult("PASS: addition test passed", true);
@@ -35,6 +47,27 @@ try {
 try {
   testSubtraction();
   showResult("PASS: subtraction test passed", true);
+} catch (error) {
+  showResult(`FAIL: ${error.message}`, false);
+}
+
+try {
+  testMultiplication();
+  showResult("PASS: multiplication test passed", true);
+} catch (error) {
+  showResult(`FAIL: ${error.message}`, false);
+}
+
+try {
+  testDivision();
+  showResult("PASS: division test passed", true);
+} catch (error) {
+  showResult(`FAIL: ${error.message}`, false);
+}
+
+try {
+  testSequenceWithAllOperations();
+  showResult("PASS: sequence with all operations test passed", true);
 } catch (error) {
   showResult(`FAIL: ${error.message}`, false);
 }
