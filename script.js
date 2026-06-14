@@ -1,8 +1,5 @@
 const display = document.querySelector(".display");
-const addButton = document.querySelector("#add-button");
-const subtractButton = document.querySelector("#subtract-button");
-const divideButton = document.querySelector("#divide-button");
-const multiplyButton = document.querySelector("#multiply-button");
+const operatorButtons = document.querySelectorAll("[data-operator]");
 const equalsButton = document.querySelector("#equals-button");
 const clearButton = document.querySelector("#clear-button");
 
@@ -10,7 +7,9 @@ let storedValue = null;
 let selectedOperator = null;
 
 function focusDisplay() {
-  display.focus();
+  if (display) {
+    display.focus();
+  }
 }
 
 function add(firstNumber, secondNumber) {
@@ -29,54 +28,61 @@ function multiply(firstNumber, secondNumber) {
   return firstNumber * secondNumber;
 }
 
-function calculateCurrentOperation(currentValue) {
-  if (selectedOperator === "add") {
-    return add(storedValue, currentValue);
-  }
+const operations = {
+  "+": add,
+  "-": subtract,
+  "/": divide,
+  "*": multiply,
+};
 
-  if (selectedOperator === "subtract") {
-    return subtract(storedValue, currentValue);
-  }
-
-  if (selectedOperator === "divide") {
-    return divide(storedValue, currentValue);
-  }
-
-  if (selectedOperator === "multiply") {
-    return multiply(storedValue, currentValue);
-  }
+function getDisplayValue() {
+  return Number(display.value);
 }
 
-function storeOperator(operator) {
-  if (storedValue !== null && selectedOperator !== null && display.value !== "") {
-    display.value = calculateCurrentOperation(Number(display.value));
+function calculate(operator, firstNumber, secondNumber) {
+  if (!operations[operator]) {
+    throw new Error(`Unknown operator: ${operator}`);
   }
 
-  storedValue = Number(display.value);
+  return operations[operator](firstNumber, secondNumber);
+}
+
+function hasPendingCalculation() {
+  if (storedValue !== null && selectedOperator !== null && display.value !== "") {
+    return true;
+  }
+
+  return false;
+}
+
+function chooseOperator(operator) {
+  if (hasPendingCalculation()) {
+    display.value = calculate(selectedOperator, storedValue, getDisplayValue());
+  }
+
+  storedValue = getDisplayValue();
   selectedOperator = operator;
   display.select();
   focusDisplay();
 }
 
-function storeAdditionValue() {
-  storeOperator("add");
-}
+function calculateSequence(expression) {
+  const tokens = expression.trim().split(/\s+/);
+  let result = Number(tokens[0]);
 
-function storeSubtractionValue() {
-  storeOperator("subtract");
-}
+  for (let i = 1; i < tokens.length; i += 2) {
+    result = calculate(tokens[i], result, Number(tokens[i + 1]));
+  }
 
-function storeDivisionValue() {
-  storeOperator("divide");
-}
-
-function storeMultiplicationValue() {
-  storeOperator("multiply");
+  return result;
 }
 
 function resolveCalculation() {
-  if (selectedOperator !== null) {
-    display.value = calculateCurrentOperation(Number(display.value));
+  if (hasPendingCalculation()) {
+    display.value = calculate(selectedOperator, storedValue, getDisplayValue());
+    storedValue = null;
+    selectedOperator = null;
+    display.select();
   }
 
   focusDisplay();
@@ -89,19 +95,11 @@ function clearCalculator() {
   focusDisplay();
 }
 
-if (
-  display &&
-  addButton &&
-  subtractButton &&
-  divideButton &&
-  multiplyButton &&
-  equalsButton &&
-  clearButton
-) {
-  addButton.addEventListener("click", storeAdditionValue);
-  subtractButton.addEventListener("click", storeSubtractionValue);
-  divideButton.addEventListener("click", storeDivisionValue);
-  multiplyButton.addEventListener("click", storeMultiplicationValue);
+if (display && equalsButton && clearButton) {
+  operatorButtons.forEach((button) => {
+    button.addEventListener("click", () => chooseOperator(button.dataset.operator));
+  });
+
   equalsButton.addEventListener("click", resolveCalculation);
   clearButton.addEventListener("click", clearCalculator);
   focusDisplay();
