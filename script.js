@@ -9,6 +9,10 @@ const clearButton = document.querySelector("#clear-button");
 let storedValue = null;
 let selectedOperator = null;
 
+function focusDisplay() {
+  display.focus();
+}
+
 function add(firstNumber, secondNumber) {
   return firstNumber + secondNumber;
 }
@@ -25,54 +29,64 @@ function multiply(firstNumber, secondNumber) {
   return firstNumber * secondNumber;
 }
 
-function storeAdditionValue() {
-  storedValue = Number(display.value);
-  selectedOperator = "add";
-  display.value = "";
-}
-
-function storeSubtractionValue() {
-  storedValue = Number(display.value);
-  selectedOperator = "subtract";
-  display.value = "";
-}
-
-function storeDivisionValue() {
-  storedValue = Number(display.value);
-  selectedOperator = "divide";
-  display.value = "";
-}
-
-function storeMultiplicationValue() {
-  storedValue = Number(display.value);
-  selectedOperator = "multiply";
-  display.value = "";
-}
-
-function resolveCalculation() {
-  const currentValue = Number(display.value);
-
+function calculateCurrentOperation(currentValue) {
   if (selectedOperator === "add") {
-    display.value = add(storedValue, currentValue);
+    return add(storedValue, currentValue);
   }
 
   if (selectedOperator === "subtract") {
-    display.value = subtract(storedValue, currentValue);
+    return subtract(storedValue, currentValue);
   }
 
   if (selectedOperator === "divide") {
-    display.value = divide(storedValue, currentValue);
+    return divide(storedValue, currentValue);
   }
 
   if (selectedOperator === "multiply") {
-    display.value = multiply(storedValue, currentValue);
+    return multiply(storedValue, currentValue);
   }
+}
+
+function storeOperator(operator) {
+  if (storedValue !== null && selectedOperator !== null && display.value !== "") {
+    display.value = calculateCurrentOperation(Number(display.value));
+  }
+
+  storedValue = Number(display.value);
+  selectedOperator = operator;
+  display.select();
+  focusDisplay();
+}
+
+function storeAdditionValue() {
+  storeOperator("add");
+}
+
+function storeSubtractionValue() {
+  storeOperator("subtract");
+}
+
+function storeDivisionValue() {
+  storeOperator("divide");
+}
+
+function storeMultiplicationValue() {
+  storeOperator("multiply");
+}
+
+function resolveCalculation() {
+  if (selectedOperator !== null) {
+    display.value = calculateCurrentOperation(Number(display.value));
+  }
+
+  focusDisplay();
 }
 
 function clearCalculator() {
   storedValue = null;
   selectedOperator = null;
   display.value = "";
+  focusDisplay();
 }
 
 if (
@@ -90,4 +104,5 @@ if (
   multiplyButton.addEventListener("click", storeMultiplicationValue);
   equalsButton.addEventListener("click", resolveCalculation);
   clearButton.addEventListener("click", clearCalculator);
+  focusDisplay();
 }
